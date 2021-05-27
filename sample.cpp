@@ -409,24 +409,24 @@ Display( )
 	glEnable( GL_NORMALIZE );
 	// draw the current object:	
     //without lighting
-	//glColor3f(0, 0, 1);
-	//genCone(1, 2, 200);
-	//genCylinder(1, 2, 200);
-	//genSphere(200, 200, 2.0);
-	//genCube(1, 2, 2);
-	//gauss1d(200, 1, 1, 1, 0.5, 2);
+	//glColor3f(0, 1, 0);
+	//genCone(1.5, 1, 10);
+	//genCylinder(0.5, 2, 200);
+	//genSphere(200, 200, 1.0);
+	//genCube(1.3, 2, 2);
+	gauss1d(200, 0.1, 0.1, 1, 0.1, 2);
 	//exampleArrows1();
 	//exampleArrows2();
-	//exampleArrows3();
+   // exampleArrows3();
 
 	//with lighting
 
-	glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-	SetMaterial(0, 0, 1, 1.0);
+	//glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHT0);
+	//SetMaterial(0, 0, 1, 1.0);
     //exampleArrows1();
 	//exampleArrows2();
-	exampleArrows3();
+	//exampleArrows3();
 
 #ifdef DEMO_Z_FIGHTING
 	if( DepthFightingOn != 0 )

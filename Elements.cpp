@@ -196,8 +196,8 @@ void exampleArrows1() {
 void exampleArrows2() {
 	genCone(1, 1, 200);
 	glPushMatrix();
-	glTranslatef(0, -1, 0);
-	glScalef(1.0, 2.3, 1.0);
+	glTranslatef(0, -1, 0); //t
+	glScalef(1.0, 2.3, 1.0); //s
 	genSphere(200, 200, 0.5);
 	glPopMatrix();
 }

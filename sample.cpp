@@ -14,7 +14,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
-
+#include "Elements.h"
 
 //	This is a sample OpenGL / GLUT program
 //
@@ -86,7 +86,7 @@ const float SCROLL_WHEEL_CLICK_FACTOR = { 5. };
 const int LEFT   = { 4 };
 const int MIDDLE = { 2 };
 const int RIGHT  = { 1 };
-
+static float White[] = { 1., 1., 1., 1. };
 // which projection:
 
 enum Projections
@@ -126,16 +126,16 @@ enum Colors
 	BLACK
 };
 
-char * ColorNames[ ] =
+const char * ColorNames[] =
 {
-	(char *)"Red",
-	(char*)"Yellow",
-	(char*)"Green",
-	(char*)"Cyan",
-	(char*)"Blue",
-	(char*)"Magenta",
-	(char*)"White",
-	(char*)"Black"
+	"Red",
+	"Yellow",
+	"Green",
+	"Cyan",
+	"Blue",
+	"Magenta",
+	"White",
+	"Black"
 };
 
 // the color definitions:
@@ -219,6 +219,11 @@ void	MouseMotion( int, int );
 void	Reset( );
 void	Resize( int, int );
 void	Visibility( int );
+void SetMaterial(float r, float g, float b, float shininess);
+void
+SetSpotLight(int light, float x, float y, float z, float xdir, float ydir, float zdir, float r, float g, float b);
+void
+SetPointLight(int light, float x, float y, float z, float r, float g, float b);
 
 void			Axes( float );
 unsigned char *	BmpToTexture( char *, int *, int * );
@@ -321,9 +326,10 @@ Display( )
 
 
 	// specify shading to be flat:
-
-	glShadeModel( GL_FLAT );
-
+	glShadeModel( GL_SMOOTH );
+	//specify the lighting
+	SetPointLight(GL_LIGHT0, 0, 2, 5, 0.3, 0.3, 0.3);
+	//SetPointLight(GL_LIGHT1, 0, 0, -5, 1, 1, 1);
 
 	// set the viewport to a square centered in the window:
 
@@ -401,11 +407,26 @@ Display( )
 	// since we are using glScalef( ), be sure normals get unitized:
 
 	glEnable( GL_NORMALIZE );
+	// draw the current object:	
+    //without lighting
+	//glColor3f(0, 0, 1);
+	//genCone(1, 2, 200);
+	//genCylinder(1, 2, 200);
+	//genSphere(200, 200, 2.0);
+	//genCube(1, 2, 2);
+	//gauss1d(200, 1, 1, 1, 0.5, 2);
+	//exampleArrows1();
+	//exampleArrows2();
+	//exampleArrows3();
 
+	//with lighting
 
-	// draw the current object:
-
-	glCallList( BoxList );
+	glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+	SetMaterial(0, 0, 1, 1.0);
+    //exampleArrows1();
+	//exampleArrows2();
+	exampleArrows3();
 
 #ifdef DEMO_Z_FIGHTING
 	if( DepthFightingOn != 0 )
@@ -422,7 +443,7 @@ Display( )
 
 	glDisable( GL_DEPTH_TEST );
 	glColor3f( 0., 1., 1. );
-	DoRasterString( 0., 1., 0., (char *)"Text That Moves" );
+	//DoRasterString( 0., 1., 0., (char *)"Text That Moves" );
 
 
 	// draw some gratuitous text that is fixed on the screen:
@@ -442,7 +463,7 @@ Display( )
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity( );
 	glColor3f( 1., 1., 1. );
-	DoRasterString( 5., 5., 0., (char *)"Text That Doesn't" );
+	//DoRasterString( 5., 5., 0., (char *)"Text That Doesn't" );
 
 
 	// swap the double-buffered framebuffers:
@@ -1417,4 +1438,73 @@ Unit(float vin[3], float vout[3])
 		vout[2] = vin[2];
 	}
 	return dist;
+}
+float*
+Array3(float a, float b, float c) {
+
+	static float array[4];
+	array[0] = a;
+	array[1] = b;
+	array[2] = c;
+	array[3] = 1.;
+	return array;
+}
+float*
+MulArray3(float factor, float array0[3]) {
+
+	static float array[4];
+	array[0] = factor * array0[0];
+	array[1] = factor * array0[1];
+	array[2] = factor * array0[2];
+	array[3] = 1.;
+
+	return array;
+}
+//set material 
+void SetMaterial(float r, float g, float b, float shininess) {
+
+	glMaterialfv(GL_BACK, GL_EMISSION, Array3(0, 0, 0));
+	glMaterialfv(GL_BACK, GL_AMBIENT, MulArray3(.4f, White));
+	glMaterialfv(GL_BACK, GL_DIFFUSE, MulArray3(.4f, White));
+	glMaterialfv(GL_BACK, GL_SPECULAR, Array3(0, 0, 0));
+	glMaterialf(GL_BACK, GL_SHININESS, 2.f);
+
+	glMaterialfv(GL_FRONT, GL_EMISSION, Array3(0, 0, 0));
+	glMaterialfv(GL_FRONT, GL_AMBIENT, Array3(r, g, b));
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, Array3(r, g, b));
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+
+}
+void
+SetPointLight(int light, float x, float y, float z, float r, float g, float b) {
+
+	glLightfv(light, GL_POSITION, Array3(x, y, z));
+	glLightfv(light, GL_AMBIENT, Array3(0., 0., 0.));
+	glLightfv(light, GL_DIFFUSE, Array3(r, g, b));
+	glLightfv(light, GL_SPECULAR, Array3(r, g, b));
+
+	glLightf(light, GL_CONSTANT_ATTENUATION, 1.);
+	glLightf(light, GL_LINEAR_ATTENUATION, 0.);
+	glLightf(light, GL_QUADRATIC_ATTENUATION, 0.);
+	glEnable(light);
+
+}
+void
+SetSpotLight(int light, float x, float y, float z, float xdir, float ydir, float zdir, float r, float g, float b) {
+
+	glLightfv(light, GL_POSITION, Array3(x, y, z));
+	glLightfv(light, GL_SPOT_DIRECTION, Array3(xdir, ydir, zdir));
+	glLightf(light, GL_SPOT_EXPONENT, 1);
+	glLightf(light, GL_SPOT_CUTOFF, 45);
+
+	glLightfv(light, GL_AMBIENT, Array3(0., 0., 0.));
+	glLightfv(light, GL_DIFFUSE, Array3(r, g, b));
+	glLightfv(light, GL_SPECULAR, Array3(r, g, b));
+
+	glLightf(light, GL_CONSTANT_ATTENUATION, 1.);
+	glLightf(light, GL_LINEAR_ATTENUATION, 0.);
+	glLightf(light, GL_QUADRATIC_ATTENUATION, 0.);
+	glEnable(light);
+
 }

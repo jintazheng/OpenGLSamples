@@ -21,6 +21,10 @@ void genCube(float w, float l, float h);
 */
 void gauss1d(size_t cell_num,float r, float g, float b, float sigma, float scale);
 /*
+* generate square
+*/
+void genSquare(size_t cell_num);
+/*
 * example arrows
 */
 void exampleArrows1();

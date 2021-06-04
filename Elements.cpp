@@ -186,6 +186,31 @@ void gauss1d(size_t cell_num, float r, float g, float b, float sigma, float scal
 		}
 	}
 }
+void genSquare(size_t cell_num) {
+	float step = 1.0 / cell_num;
+	for (size_t i = 0; i < cell_num; i++) {
+		for (size_t j = 0; j < cell_num; j++) {
+			glBegin(GL_POLYGON);
+			float x = 1.0*i / (cell_num - 1) - 0.5;
+			
+			if(abs(j*step-0.5) * abs(j*step - 0.5) + abs(i*step - 0.5) * abs(i*step - 0.5) < 0.1)
+			    glColor4f(1.0, 1.0, 1.0, 0.0);
+			else
+				glColor4f(1.0, 1.0, 1.0, 1.0);
+			//
+			glTexCoord2f(j*step, i*step);
+			glVertex3d(j*step - 0.5, i*step - 0.5, 0);
+			glTexCoord2f((j+1)*step, i*step);
+			glVertex3d((j + 1)*step - 0.5, i*step - 0.5, 0);
+			x = 1.0*(i + 1) / (cell_num - 1) - 0.5;
+			glTexCoord2f((j+1)*step, (i+1)*step);
+			glVertex3d((j + 1)*step - 0.5, (i + 1)*step - 0.5, 0);
+			glTexCoord2f(j*step, (i + 1)*step);
+			glVertex3d(j*step - 0.5, (i + 1)*step - 0.5, 0);
+			glEnd();
+		}
+	}
+}
 void exampleArrows1() {
 	genCone(1, 1, 200);
 	glPushMatrix();

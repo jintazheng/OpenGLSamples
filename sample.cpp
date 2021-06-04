@@ -192,7 +192,7 @@ int		WhichColor;				// index into Colors[ ]
 int		WhichProjection;		// ORTHO or PERSP
 int		Xmouse, Ymouse;			// mouse values
 float	Xrot, Yrot;				// rotation angles in degrees
-
+GLuint tex0;
 
 // function prototypes:
 
@@ -224,7 +224,7 @@ void
 SetSpotLight(int light, float x, float y, float z, float xdir, float ydir, float zdir, float r, float g, float b);
 void
 SetPointLight(int light, float x, float y, float z, float r, float g, float b);
-
+void initialize2DTexture(char* filename, GLuint& tex);
 void			Axes( float );
 unsigned char *	BmpToTexture( char *, int *, int * );
 void			HsvRgb( float[3], float [3] );
@@ -409,16 +409,15 @@ Display( )
 	glEnable( GL_NORMALIZE );
 	// draw the current object:	
     //without lighting
-	//glColor3f(0, 1, 0);
+	glColor3f(0, 1, 0);
 	//genCone(1.5, 1, 10);
 	//genCylinder(0.5, 2, 200);
 	//genSphere(200, 200, 1.0);
 	//genCube(1.3, 2, 2);
-	gauss1d(200, 0.1, 0.1, 1, 0.1, 2);
+	//gauss1d(200, 0.1, 0.1, 1, 0.1, 2);
 	//exampleArrows1();
 	//exampleArrows2();
    // exampleArrows3();
-
 	//with lighting
 
 	//glEnable(GL_LIGHTING);
@@ -427,6 +426,13 @@ Display( )
     //exampleArrows1();
 	//exampleArrows2();
 	//exampleArrows3();
+
+	//texture
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, tex0);
+	genSquare(200);
 
 #ifdef DEMO_Z_FIGHTING
 	if( DepthFightingOn != 0 )
@@ -787,7 +793,9 @@ InitGraphics( )
 		fprintf( stderr, "GLEW initialized OK\n" );
 	fprintf( stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
-
+	//tex
+	initialize2DTexture("metal.bmp", tex0);
+	//
 }
 
 
@@ -1506,5 +1514,26 @@ SetSpotLight(int light, float x, float y, float z, float xdir, float ydir, float
 	glLightf(light, GL_LINEAR_ATTENUATION, 0.);
 	glLightf(light, GL_QUADRATIC_ATTENUATION, 0.);
 	glEnable(light);
+
+}
+void initialize2DTexture(char* filename, GLuint& tex) {
+
+	/*initialize texture*/
+	int width, height;
+	unsigned char *Texture = BmpToTexture(filename, &width, &height);
+	int level = 0;
+	int ncomps = 3;
+	int border = 0;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &tex); // assign binding “handles”
+	glBindTexture(GL_TEXTURE_2D, tex); // make tex0 texture current
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glTexImage2D(GL_TEXTURE_2D, level, ncomps, width, height, border, GL_RGB, GL_UNSIGNED_BYTE, Texture);
 
 }
